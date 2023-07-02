@@ -1,32 +1,92 @@
-// server.js
-
 const express = require("express");
 const app = express();
-const port = 3001;
+const fs = require("fs");
+const xml2js = require("xml2js");
+const parser = new xml2js.Parser();
 
 app.use(express.json());
 
-app.post("/api/outlet", (req, res) => {
-  const customerLocation = req.body.location;
-  const outletIdentifier = getOutletIdentifier(customerLocation);
+const kmlData = fs.readFileSync("outlets.kml", "utf-8");
+let outlets;
 
-  res.json({ outletIdentifier });
-});
+parser.parseString(kmlData, (err, result) => {
+  if (err) {
+    console.error(err);
+  } else {
+    outlets = result.kml.Document[0].Placemark;
+  }const express = require("express");
+  const app = express();
+  const fs = require("fs");
+  const xml2js = require("xml2js");
+  const parser = new xml2js.Parser();
 
-function getOutletIdentifier(customerLocation) {
- 
-  if (customerLocation.latitude >= 40.0 && customerLocation.latitude <= 41.0) {
-    return "Outlet 1";
-  } else if (
-    customerLocation.latitude >= 42.0 &&
-    customerLocation.latitude <= 43.0
-  ) {
-    return "Outlet 2";
+  app.use(express.json());
+
+  fs.readFile("outlets.kml", "utf-8", (err, kmlData) => {
+    if (err) {
+      console.error(err);
+    } else {
+      parser.parseString(kmlData, (err, result) => {
+        if (err) {
+          console.error(err);
+        } else {
+          const outlets = result.kml.Document[0].Placemark;
+          startServer(outlets);
+        }
+      });
+    }
+  });
+
+  function startServer(outlets) {
+    app.post("/getLocation", (req, res) => {
+      const { location } = req.body;
+
+      const outlet = findOutlet(location, outlets);
+
+      if (outlet) {
+        res.json({ outlet_identifier: outlet.name[0] });
+      } else {
+        res.status(404).json({ error: "Outlet not found" });
+      }
+    });
+
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   }
 
-  return "Unknown";
-}
+  function findOutlet(location, outlets) {
+    for (let i = 0; i < outlets.length; i++) {
+      const outlet = outlets[i];
+      if (outlet.name[0] === location) {
+        return outlet;
+      }
+    }
+    return null;
+  }
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
 });
+
+app.post("/getLocation", (req, res) => {
+  const { location } = req.body;
+
+ 
+  const outlet = findOutlet(location);
+
+  if (outlet) {
+    res.json({ outlet_identifier: outlet.name[0] });
+  } else {
+    res.status(404).json({ error: "Outlet not found" });
+  }
+});
+function findOutlet(location) {
+ 
+  for (let i = 0; i < outlets.length; i++) {
+    const outlet = outlets[i];
+    if (outlet.name[0] === location) {
+      return outlet;
+    }
+  }
+  return null;
+}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

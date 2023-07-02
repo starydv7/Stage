@@ -1,35 +1,36 @@
-// src/App.js
-
 import React, { useState } from "react";
 import axios from "axios";
 
 const Home = () => {
   const [address, setAddress] = useState("");
-  const [outletIdentifier, setOutletIdentifier] = useState("");
+  const [Outlet, setOutlet] = useState("");
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
     try {
-      const response = await axios.post("/api/outlet", { location: address });
-      setOutletIdentifier(response.data.outletIdentifier);
+      const response = await axios.post("/getLocation", {
+        location: address,
+      });
+      setOutlet(response.data.outlet_identifier);
     } catch (error) {
-      console.error("Error fetching outlet identifier:", error);
+      console.log(error);
     }
   };
 
   return (
     <div>
+      <h1>Outlet Identifier</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Enter address"
+          placeholder="Enter your address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />
         <button type="submit">Submit</button>
       </form>
-
-      {outletIdentifier && <div>Outlet Identifier: {outletIdentifier}</div>}
+      {Outlet && <p>Outlet Location: {Outlet}</p>}
     </div>
   );
 };
