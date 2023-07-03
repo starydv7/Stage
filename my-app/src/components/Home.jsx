@@ -9,7 +9,7 @@ const Home = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("/getLocation", {
+      const response = await axios.post("http://localhost:3000/getLocation", {
         location: address,
       });
       setOutlet(response.data.outlet_identifier);
@@ -20,7 +20,7 @@ const Home = () => {
 
   return (
     <div>
-      <h1>Outlet Identifier</h1>
+      <h1>Find Outlets</h1>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
