@@ -24,11 +24,11 @@ const Home = () => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="Enter your address"
+          placeholder="Enter location"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
         />
-        <button type="submit">Submit</button>
+        <button type="submit">Find</button>
       </form>
       {Outlet && <p>Outlet Location: {Outlet}</p>}
     </div>
